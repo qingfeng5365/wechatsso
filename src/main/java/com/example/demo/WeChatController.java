@@ -20,6 +20,9 @@ public class WeChatController {
     @Autowired
     private RestTemplate restTemplate;
 
+    @Autowired
+    private AccessTokenService accessTokenService;
+
     @GetMapping("/api/wxlogin")
     public RedirectView wechatLogin() {
         String url = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=" + weChatConfig.getCorpId()
@@ -31,7 +34,7 @@ public class WeChatController {
     @GetMapping("/api/auth/callback")
     public String wechatCallback(@RequestParam("code") String code) {
         
-        String access_token = getAccessToken();
+        String access_token = accessTokenService.getAccessToken();
         String url = "https://qyapi.weixin.qq.com/cgi-bin/user/getuserinfo?access_token=" + access_token
                 + "&code=" + code;
 
@@ -43,14 +46,6 @@ public class WeChatController {
 
     }
 
-    private String getAccessToken() {
-        String url = "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=" + weChatConfig.getCorpId()
-                + "&corpsecret=" + weChatConfig.getSecret();
-       
-        AccessTokenResponse response = restTemplate.getForObject(url, AccessTokenResponse.class);
-       
-        return response.getAccess_token();
-    }
 
     private String getUserId(String url, String access_token) {
 
